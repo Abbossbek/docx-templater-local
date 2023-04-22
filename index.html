@@ -67,6 +67,10 @@
         }
     </style>
     <script>
+        function onPdfExporting(s, e) {
+            e.handled = true;
+            console.log(e.base64);
+        }
         function onSaving(s, e) {
             console.log("Generating...");
             richEdit.loadingPanel.show();
@@ -161,6 +165,9 @@
                 <li>
                     <button onclick="richEdit.downloadPdf()">Download PDF</button>
                 </li>
+                <li>
+                    <button onclick="richEdit.exportToPdf()">Export to PDF</button>
+                </li>
             </ul>
         </nav>
 
@@ -240,7 +247,8 @@
                             "enabled": false
                         },
                         "events": {
-                            "saving": "onSaving"
+                            "saving": "onSaving",
+                            "pdfExporting": "onPdfExporting"
                         },
                     });
                 })()
