@@ -67,11 +67,10 @@
         }
     </style>
     <script>
-
         function onSaving(s, e) {
             console.log("Generating...");
             richEdit.loadingPanel.show();
-            try{
+            try {
 
                 const textarea = document.getElementById('taJsonElement');
                 const text = textarea.value;
@@ -81,20 +80,20 @@
                     paragraphLoop: true,
                     linebreaks: true,
                 });
-                
+
                 // Render the document (Replace {first_name} by John, {last_name} by Doe, ...)
                 doc.render(obj);
-                
+
                 var blob = doc.getZip().generate({
                     type: "blob",
                     mimeType:
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     // compression: DEFLATE adds a compression step.
                     // For a 50MB output document, expect 500ms additional CPU time
                     compression: "DEFLATE",
                 });
                 richEdit.openDocument(blob, "Document", DevExpress.RichEdit.DocumentFormat.OpenXml);
-            }catch(e){
+            } catch (e) {
                 alert(e);
             }
 
@@ -156,7 +155,11 @@
                     <textarea id="taJsonElement" style="width: 100%; height: 500px;"></textarea>
                 </li>
                 <li>
-                    <button onclick="richEdit.hasUnsavedChanges = true;richEdit.saveDocument();">Generate document</button>
+                    <button onclick="richEdit.hasUnsavedChanges = true;richEdit.saveDocument();">Generate
+                        document</button>
+                </li>
+                <li>
+                    <button onclick="richEdit.downloadPdf()">Download PDF</button>
                 </li>
             </ul>
         </nav>
@@ -188,10 +191,37 @@
                         },
                         "fonts": {
                             "defaultFolder": null,
-                            "fonts": [],
+                            "fonts": [
+                                {
+                                    "name": 'Carlito',
+                                    "fontFamily": 'Carlito',
+                                    "regularFontUri": 'fonts/Carlito/Carlito-Regular.ttf',
+                                    "italicFontUri": 'fonts/Carlito/Carlito-Italic.ttf',
+                                    "boldFontUri": 'fonts/Carlito/Carlito-Bold.ttf',
+                                    "boldItalicFontUri": 'fonts/Carlito/Carlito-BoldItalic.ttf',
+                                }, {
+                                    "name": 'Comic',
+                                    "fontFamily": 'Comic',
+                                }, {
+                                    "name": 'Roboto Mono',
+                                    "fontFamily": 'Roboto Mono',
+                                    //from https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,400;0,700;1,400;1,700
+                                    "regularFontUri": 'https://fonts.gstatic.com/s/robotomono/v12/L0x5DF4xlVMF-BfR8bXMIjhLq38.woff2',
+                                    "italicFontUri": 'https://fonts.gstatic.com/s/robotomono/v12/L0x7DF4xlVMF-BfR8bXMIjhOm32WWg.woff2',
+                                    "boldFontUri": 'https://fonts.gstatic.com/s/robotomono/v12/L0x5DF4xlVMF-BfR8bXMIjhLq38.woff2',
+                                    "boldItalicFontUri": 'https://fonts.gstatic.com/s/robotomono/v12/L0x7DF4xlVMF-BfR8bXMIjhOm32WWg.woff2',
+                                }],
                             "mappings": {
-                                "rules": [],
-                                "defaultFontName": null
+                                "defaultFontName": 'Carlito',
+                                "rules": [
+                                    {
+                                        "sourceFontFamily": 'Arial',
+                                        "destinationFontName": 'Comic'
+                                    }, {
+                                        "sourceFontFamily": 'Times',
+                                        "destinationFontName": 'Roboto Mono'
+                                    }
+                                ]
                             }
                         },
                         "printing": {
