@@ -67,9 +67,33 @@
         }
     </style>
     <script>
+
+        class MyRichEditorEvent extends Event {
+            value = null; 
+            constructor(e, value) {
+                super(e);
+                this.value = value;
+            }
+        }
+
+        class MyEventEmitter extends EventTarget {
+            pdfExported(sender, event) {
+                this.dispatchEvent(new MyRichEditorEvent('onPdfExporting', { sender, event }));
+            }
+            documentLoaded(sender, event) {
+                this.dispatchEvent(new MyRichEditorEvent('onDocumentLoaded', { sender, event }));
+            }
+        }
+
+        const eventEmitter = new MyEventEmitter();
+        
         function onPdfExporting(s, e) {
-            //e.handled = true;
             console.log(e.base64);
+            eventEmitter.pdfExported(s, e);
+        }
+        function onDocumentLoaded(s, e) {
+            console.log(e.base64);
+            eventEmitter.documentLoaded(s, e);
         }
         function onSaving(s, e) {
             console.log("Generating...");
@@ -248,14 +272,45 @@
                         },
                         "events": {
                             "saving": "onSaving",
-                            "pdfExporting": "onPdfExporting"
+                            "pdfExporting": "onPdfExporting",
+                            "documentLoaded":"onDocumentLoaded"
                         },
                     });
                 })()
+
+                async function runExport(url) {
+                   const promise = new Promise((resolve, reject) => {
+                        if (url) {
+                            richEdit.loadingPanel.show();
+                            loadFile(
+                                url,
+                                function (error, content) {
+                                    if (error) {
+                                        throw error;
+                                    }
+                                    richEdit.openDocument(content, "Document", DevExpress.RichEdit.DocumentFormat.OpenXml);
+                                    eventEmitter.addEventListener('onDocumentLoaded', (myRichEditorEvent) => {
+                                        richEdit.exportToPdf();
+                                    });
+                                    
+                                }
+                            );
+                        }
+                        eventEmitter.addEventListener('onPdfExporting', (myRichEditorEvent) => {
+                            const { sender, event } = myRichEditorEvent.value;
+                                if (event.base64) {
+                                    return resolve(event.base64);
+                                } 
+
+                            return reject(event.error);;
+                        });
+                   });
+
+                   return promise;
+                }
             </script>
         </article>
     </section>
-
 </body>
 
 </html>
